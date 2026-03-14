@@ -1,0 +1,16 @@
+shipment_id,risk_score,delay,reason,recommended_action,alternate_route,time_saved_hours
+SHP1001,42,NO,Light Traffic,Monitor situation,Mumbai → Lucknow → Delhi (NH2),0
+SHP1002,35,NO,Clear Weather,No action needed,Chennai → Bangalore (NH48),0
+SHP1003,76,YES,Road Construction + Heavy Traffic,Reroute recommended,Kolkata → Bhubaneswar → Hyderabad,3
+SHP1004,20,NO,Clear Weather,No action needed,Delhi → Jaipur → Mumbai (NH48),0
+SHP1005,55,NO,Moderate Traffic,Monitor situation,Pune → Vadodara → Ahmedabad,0
+SHP1006,44,NO,Light Rain,No action needed,Jaipur → Kanpur → Lucknow,0
+SHP1007,18,NO,Clear Weather,No action needed,Mumbai → Pune → Goa (NH66),0
+SHP1008,68,YES,Heavy Rain + Flooding,Hold & Monitor,Hyderabad → Bangalore → Chennai,2
+SHP1009,62,NO,High Traffic Near Varanasi,Monitor situation,Delhi → Kanpur → Kolkata,0
+SHP1010,25,NO,Clear Weather,No action needed,Bangalore → Pune (NH48),0
+SHP1011,48,NO,Strong Winds,Monitor situation,Ahmedabad → Jaipur → Delhi,0
+SHP1012,71,YES,Heavy Traffic + Festival,Reroute via NH160,Chennai → Pune → Mumbai,2
+SHP1013,89,YES,Heavy Rain + Flooding,Hold at Varanasi Hub,Kolkata → Patna → Delhi,5
+SHP1014,30,NO,Clear Weather,No action needed,Mumbai → Pune → Hyderabad,0
+SHP1015,58,NO,Moderate Traffic + Fog,Early dispatch recommended,Pune → Bhopal → Delhi,1
