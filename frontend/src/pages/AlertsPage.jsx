@@ -2,16 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Card, CardContent, Button, Chip,
-  CircularProgress, Alert
+  CircularProgress, Alert, TextField, InputAdornment, IconButton
 } from '@mui/material';
-import { Warning, Sms, Map, ArrowBack, Refresh } from '@mui/icons-material';
+import { Warning, Sms, Map, ArrowBack, Refresh, Search, Close } from '@mui/icons-material';
 import { getAllShipments, sendSMSAlert } from '../services/api';
 
 export default function AlertsPage() {
   const [shipments, setShipments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [smsStatus, setSmsStatus] = useState({});
+  const [searchShipmentId, setSearchShipmentId] = useState('');
   const navigate = useNavigate();
+
+  const normalizedQuery = searchShipmentId.trim().toUpperCase();
+  const filteredShipments = shipments.filter((s) => {
+    if (!normalizedQuery) return true;
+    return String(s.shipment_id || '').toUpperCase().includes(normalizedQuery);
+  });
 
   const fetchData = async () => {
     setLoading(true);
@@ -28,7 +35,8 @@ export default function AlertsPage() {
   const handleSMS = async (s) => {
     setSmsStatus(prev => ({ ...prev, [s.shipment_id]: 'sending' }));
     try {
-      await sendSMSAlert(s.customer_phone, s.shipment_id, s.reason, s.time_saved_hours || 3);
+      const recipients = [s.customer_phone, s.driver_phone].filter(Boolean);
+      await sendSMSAlert(recipients, s.shipment_id, s.reason, s.time_saved_hours || 3);
       setSmsStatus(prev => ({ ...prev, [s.shipment_id]: 'sent' }));
     } catch {
       setSmsStatus(prev => ({ ...prev, [s.shipment_id]: 'failed' }));
@@ -47,16 +55,57 @@ export default function AlertsPage() {
         <Button startIcon={<ArrowBack />} onClick={() => navigate('/dashboard')} sx={{ color: 'rgba(255,255,255,0.5)' }}>Back</Button>
         <Warning sx={{ color: '#ef4444', fontSize: 28 }} />
         <Typography variant="h5" sx={{ fontWeight: 800 }}>Delay Alerts</Typography>
-        <Chip label={`${shipments.length} High Risk`} sx={{ background: '#ef444422', color: '#ef4444', fontWeight: 700 }} />
+        <Chip label={`${filteredShipments.length} / ${shipments.length} High Risk`} sx={{ background: '#ef444422', color: '#ef4444', fontWeight: 700 }} />
         <Box sx={{ flexGrow: 1 }} />
         <Button startIcon={<Refresh />} onClick={fetchData} sx={{ color: '#6366f1' }}>Refresh</Button>
       </Box>
 
+      <Box sx={{ mb: 3, maxWidth: 420 }}>
+        <TextField
+          fullWidth
+          size="small"
+          value={searchShipmentId}
+          onChange={(e) => setSearchShipmentId(e.target.value.toUpperCase())}
+          placeholder="Search Shipment ID (e.g., SHP1003)"
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              background: 'rgba(17,24,39,0.9)',
+              '& fieldset': { borderColor: '#6366f155' },
+              '&:hover fieldset': { borderColor: '#6366f1aa' },
+              '&.Mui-focused fieldset': { borderColor: '#6366f1' }
+            }
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search sx={{ color: 'rgba(255,255,255,0.5)' }} />
+              </InputAdornment>
+            ),
+            endAdornment: searchShipmentId ? (
+              <InputAdornment position="end">
+                <IconButton
+                  size="small"
+                  onClick={() => setSearchShipmentId('')}
+                  sx={{ color: 'rgba(255,255,255,0.6)' }}
+                  aria-label="Clear shipment search"
+                >
+                  <Close fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            ) : null
+          }}
+        />
+      </Box>
+
       {shipments.length === 0 ? (
         <Alert severity="success" sx={{ maxWidth: 500 }}>No high-risk shipments currently. All good! ✅</Alert>
+      ) : filteredShipments.length === 0 ? (
+        <Alert severity="info" sx={{ maxWidth: 500 }}>
+          No high-risk shipment found for "{normalizedQuery}".
+        </Alert>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 800 }}>
-          {shipments.map(s => {
+          {filteredShipments.map(s => {
             const riskScore = parseFloat(s.risk_score);
             const riskColor = riskScore >= 80 ? '#ef4444' : '#f59e0b';
             const sms = smsStatus[s.shipment_id];

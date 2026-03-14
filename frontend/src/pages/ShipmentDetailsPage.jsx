@@ -145,22 +145,23 @@ export default function ShipmentDetailsPage() {
     setSmsLoading(true);
     try {
       const riskData = prediction || shipment;
+      const recipients = [shipment.customer_phone, shipment.driver_phone].filter(Boolean);
       console.log('📤 Sending SMS with:', { 
-        phone: shipment.customer_phone, 
+        phones: recipients,
         shipmentId: shipment.shipment_id, 
         reason: riskData.reason, 
         eta: riskData.time_saved_hours 
       });
       
       const res = await sendSMSAlert(
-        shipment.customer_phone,
+        recipients,
         shipment.shipment_id,
         riskData.reason || 'High Risk Detected',
         riskData.time_saved_hours || 3
       );
       
       console.log('✅ SMS API Response:', res.data);
-      setSmsDone('✅ SMS alert sent! Check server console for details.');
+      setSmsDone('✅ Alert sent to available recipients. Check server console for details.');
     } catch (err) { 
       console.error('❌ SMS Error:', err);
       setSmsDone('❌ Failed to send alert. Check console.');
@@ -319,7 +320,8 @@ export default function ShipmentDetailsPage() {
                 { label: 'Distance', value: `${shipment?.distance_km} km` },
                 { label: 'ETA', value: `${shipment?.eta_hours} hours` },
                 { label: 'Current Location', value: shipment?.current_lat && shipment?.current_lng ? `${shipment.current_lat.toFixed(4)}, ${shipment.current_lng.toFixed(4)}` : 'Updating...' },
-                { label: 'Customer Phone', value: `+91 ${shipment?.customer_phone}` },
+                  { label: 'Customer Phone', value: shipment?.customer_phone ? `+91 ${shipment.customer_phone}` : 'N/A' },
+                  { label: 'Driver Phone', value: shipment?.driver_phone ? `+91 ${shipment.driver_phone}` : 'N/A' },
               ].map(item => (
                 <Box key={item.label} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.8, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                   <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)' }}>{item.label}</Typography>

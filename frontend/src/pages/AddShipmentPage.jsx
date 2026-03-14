@@ -14,7 +14,7 @@ export default function AddShipmentPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     order_id: '', origin: 'Mumbai', destination: 'Delhi', carrier: 'DHL',
-    distance_km: '', eta_hours: '', customer_phone: ''
+    distance_km: '', eta_hours: '', customer_phone: '', driver_phone: ''
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
@@ -61,7 +61,10 @@ export default function AddShipmentPage() {
     try {
       const res = await createShipment(form);
       setSuccess(`✅ Shipment ${res.data.shipment.shipment_id} created successfully!`);
-      setForm({ order_id: '', origin: 'Mumbai', destination: 'Delhi', carrier: 'DHL', distance_km: '', eta_hours: '', customer_phone: '' });
+      setForm({
+        order_id: '', origin: 'Mumbai', destination: 'Delhi', carrier: 'DHL',
+        distance_km: '', eta_hours: '', customer_phone: '', driver_phone: ''
+      });
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create shipment');
     }
@@ -136,7 +139,11 @@ export default function AddShipmentPage() {
               </Grid>
               <Grid item xs={6}>
                 <TextField fullWidth label="Customer Phone" value={form.customer_phone}
-                  onChange={handleChange('customer_phone')} placeholder="9876543210" />
+                  onChange={handleChange('customer_phone')} placeholder="9876543210" required />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField fullWidth label="Driver Phone" value={form.driver_phone}
+                  onChange={handleChange('driver_phone')} placeholder="9876543211" required />
               </Grid>
               <Grid item xs={12}>
                 <Button type="submit" variant="contained" fullWidth size="large" disabled={loading}

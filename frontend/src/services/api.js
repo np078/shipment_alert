@@ -29,7 +29,21 @@ export const getRouteInfo = (origin, destination, carrier) =>
 export const getPrediction = (shipmentId) => API.get(`/ai/predict/${shipmentId}`);
 
 // SMS
-export const sendSMSAlert = (phone, shipmentId, reason, newEta) =>
-  API.post('/sms/alert', { phone, shipmentId, reason, newEta, trackingUrl: 'http://shipalert.logistics.com' });
+export const sendSMSAlert = (phoneOrPhones, shipmentId, reason, newEta) => {
+  const payload = {
+    shipmentId,
+    reason,
+    newEta,
+    trackingUrl: 'http://shipalert.logistics.com'
+  };
+
+  if (Array.isArray(phoneOrPhones)) {
+    payload.phones = phoneOrPhones;
+  } else {
+    payload.phone = phoneOrPhones;
+  }
+
+  return API.post('/sms/alert', payload);
+};
 
 export default API;
