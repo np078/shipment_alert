@@ -1,13 +1,13 @@
 # 🚀 ShipAlert - AI Early Warning System for Shipment Delays
 
-**Intelligent real-time shipment monitoring with multi-channel alerts (Zero Cost)**
+**Intelligent real-time shipment monitoring with AI-powered WhatsApp alerts (Zero Cost)**
 
 ---
 
 ## 📋 Quick Start
 
 ### **Requirements**
-- Node.js 16+ | Python 3.8+ | 3 Terminal Windows
+- Node.js 18+ | Python 3.8+ | 3 Terminal Windows
 
 ### **Setup**
 
@@ -21,6 +21,8 @@ python app.py
 cd backend
 npm install
 npm start
+# (optional, for auto-reload in development)
+# npm run dev
 
 # Terminal 3: Frontend
 cd frontend
@@ -222,6 +224,7 @@ GET    /api/shipments               # Fetch all shipments (admin)
 GET    /api/shipment/:id            # Get shipment details
 POST   /api/shipments               # Create new shipment + auto-predict
 PUT    /api/shipments/:id/location  # Update truck GPS location
+GET    /api/shipments/user/:customerId  # Fetch shipments for a user
 GET    /api/route-info              # Calculate distance & ETA
 ```
 
@@ -233,6 +236,11 @@ GET    /api/ai/predict/:id          # Get risk prediction for shipment
 ### **Alerts**
 ```
 POST   /api/sms/alert               # Send manual WhatsApp alert
+```
+
+### **Health**
+```
+GET    /api/health                  # Service health check
 ```
 
 ---
@@ -301,9 +309,9 @@ npm start
 
 ### **Frontend Setup**
 ```bash
-cd frontend
-npm install
-npm run dev
+   cd frontend
+   npm install
+   npm run dev
 # Runs on: http://localhost:5173
 ```
 
@@ -320,7 +328,11 @@ Update `backend/.env` with Twilio credentials:
 ```env
 TWILIO_SID=your-account-sid
 TWILIO_TOKEN=your-auth-token
+# Optional fallback (if you prefer Twilio's AUTH_TOKEN naming)
+TWILIO_AUTH_TOKEN=your-auth-token
 TWILIO_WHATSAPP=whatsapp:+your-number
+# Optional sender metadata
+BUSINESS_PHONE=+your-business-number
 ```
 
 ---

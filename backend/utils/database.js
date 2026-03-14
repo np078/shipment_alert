@@ -66,6 +66,7 @@ class Database {
           current_lng REAL,
           customer_id INTEGER,
           customer_phone TEXT,
+          driver_phone TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY(customer_id) REFERENCES users(user_id)
@@ -107,7 +108,23 @@ class Database {
           FOREIGN KEY(shipment_id) REFERENCES shipments(shipment_id)
         )
       `)
-    ]);
+    ]).then(() => this.ensureSchemaUpdates());
+  }
+
+  /**
+   * Keep schema backward compatible for existing local DBs.
+   */
+  async ensureSchemaUpdates() {
+    await this.ensureColumn('shipments', 'driver_phone', 'TEXT');
+  }
+
+  async ensureColumn(tableName, columnName, columnType) {
+    const columns = await this.all(`PRAGMA table_info(${tableName})`);
+    const hasColumn = columns.some((col) => col.name === columnName);
+    if (!hasColumn) {
+      await this.run(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnType}`);
+      console.log(`✅ Added missing column ${tableName}.${columnName}`);
+    }
   }
 
   /**

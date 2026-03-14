@@ -6,9 +6,14 @@
 require('dotenv').config();
 const twilio = require('twilio');
 
-const TWILIO_SID = process.env.TWILIO_SID;
-const TWILIO_TOKEN = process.env.TWILIO_TOKEN;
-const TWILIO_WHATSAPP = process.env.TWILIO_WHATSAPP;
+function cleanEnvValue(value) {
+  if (typeof value !== 'string') return value;
+  return value.trim().replace(/^[:=\s]+/, '').replace(/^['\"]|['\"]$/g, '');
+}
+
+const TWILIO_SID = cleanEnvValue(process.env.TWILIO_SID);
+const TWILIO_TOKEN = cleanEnvValue(process.env.TWILIO_TOKEN || process.env.TWILIO_AUTH_TOKEN);
+const TWILIO_WHATSAPP = cleanEnvValue(process.env.TWILIO_WHATSAPP || '').replace(/\s+/g, '');
 
 console.log('🔍 Testing Twilio API Connectivity...\n');
 

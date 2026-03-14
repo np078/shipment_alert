@@ -36,8 +36,8 @@ async function migrate() {
       await db.run(
         `INSERT OR REPLACE INTO shipments 
          (shipment_id, order_id, origin, destination, carrier, status, distance_km, 
-          eta_hours, current_lat, current_lng, customer_id, customer_phone) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          eta_hours, current_lat, current_lng, customer_id, customer_phone, driver_phone) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           ship.shipment_id,
           ship.order_id,
@@ -50,7 +50,8 @@ async function migrate() {
           parseFloat(ship.current_lat) || 0,
           parseFloat(ship.current_lng) || 0,
           ship.customer_id || 1,
-          ship.customer_phone
+          ship.customer_phone,
+          ship.driver_phone || '6205975874'
         ]
       );
     }

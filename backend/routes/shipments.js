@@ -72,8 +72,15 @@ router.post('/shipments', async (req, res) => {
     const db = getDatabase();
     const {
       order_id, origin, destination, carrier, distance_km,
-      eta_hours, current_lat, current_lng, customer_id, customer_phone
+      eta_hours, current_lat, current_lng, customer_id, customer_phone, driver_phone
     } = req.body;
+
+    if (!customer_phone || !driver_phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Both customer_phone and driver_phone are required'
+      });
+    }
 
     const { generateRiskReason } = require('../utils/weatherService');
 
@@ -84,8 +91,8 @@ router.post('/shipments', async (req, res) => {
     await db.run(
       `INSERT INTO shipments 
        (shipment_id, order_id, origin, destination, carrier, status, distance_km, 
-        eta_hours, current_lat, current_lng, customer_id, customer_phone)
-       VALUES (?, ?, ?, ?, ?, 'In Transit', ?, ?, ?, ?, ?, ?)`,
+        eta_hours, current_lat, current_lng, customer_id, customer_phone, driver_phone)
+       VALUES (?, ?, ?, ?, ?, 'In Transit', ?, ?, ?, ?, ?, ?, ?)`,
       [
         newId,
         order_id || `ORD${Date.now()}`,
@@ -97,7 +104,8 @@ router.post('/shipments', async (req, res) => {
         parseFloat(current_lat) || 0,
         parseFloat(current_lng) || 0,
         customer_id || 1,
-        customer_phone || '9876543210'
+        customer_phone,
+        driver_phone
       ]
     );
 

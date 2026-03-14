@@ -1,30 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const twilio = require('twilio');
 const { sendManualAlert } = require('../utils/notificationService');
-
-const TWILIO_SID = process.env.TWILIO_SID;
-const TWILIO_TOKEN = process.env.TWILIO_TOKEN;
-const TWILIO_PHONE = process.env.TWILIO_PHONE || '+15005550006';
-
-const client = twilio(TWILIO_SID, TWILIO_TOKEN);
 
 // POST /api/sms/alert - Send delay alert (now multi-channel)
 router.post('/alert', async (req, res) => {
   try {
-    const { phone, shipmentId, reason, newEta, trackingUrl } = req.body;
+    const { phone, phones, shipmentId, reason, newEta, trackingUrl } = req.body;
+    const recipients = Array.from(new Set([
+      ...(Array.isArray(phones) ? phones : []),
+      phone
+    ].filter(Boolean).map((p) => String(p).trim())));
 
-    if (!phone || !shipmentId) {
-      return res.status(400).json({ success: false, message: 'Phone and shipmentId required' });
+    if (recipients.length === 0 || !shipmentId) {
+      return res.status(400).json({ success: false, message: 'At least one phone and shipmentId required' });
     }
 
     // Use WhatsApp notification system
-    const result = await sendManualAlert(phone, shipmentId, reason, newEta);
+    const result = await sendManualAlert(recipients, shipmentId, reason, newEta);
 
     res.json({
       success: result.success,
       channel: result.channel,
-      message: result.message
+      message: result.message,
+      requestedRecipients: recipients.length,
+      sentRecipients: result.sentCount || 0
     });
 
   } catch (error) {
